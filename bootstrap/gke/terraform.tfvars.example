@@ -1,0 +1,21 @@
+# Email for LetsEncrypt certificates
+email = "nthomson@pivotal.io"
+
+# GKE name, region, and zone
+cluster_name = "workshop-test"
+region = "us-west1"
+zone = "us-west1-a"
+
+# DNS zone names
+root_zone_name = "paasify-workshop-zone"
+subdomain = "test"
+
+project_id = "fe-myname"
+
+# Spring
+workshop_name = "Spring Workshop"
+workshop_repo = "https://github.com/nthomson-pivotal/workshop-toolkit-sample.git"
+
+workspaces_secrets = {
+  
+}
