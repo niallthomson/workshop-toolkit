@@ -1,0 +1,13 @@
+{
+    "telemetry.enableCrashReporter": false,
+    "telemetry.enableTelemetry": false,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "editor.renderControlCharacters": true,
+    "files.exclude": {
+        "**/.classpath": true,
+        "**/.project": true,
+        "**/.settings": true,
+        "**/.factorypath": true
+    }
+}

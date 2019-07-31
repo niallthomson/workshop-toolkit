@@ -1,0 +1,9 @@
+welcomeTemplate(username, workshopName, botName) ::= <<
+# Welcome to the <workshopName> Workshop!
+
+Thanks for taking the time to attend this workshop @<username>. My name is @<botName> and my job is to get you an environment to work in.
+
+I'm already creating your environment, I'll send you a message with the details when its up.
+
+Until then, you can say `help` to find out what else I can do for you!
+>>

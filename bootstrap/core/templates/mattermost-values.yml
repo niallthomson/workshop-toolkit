@@ -1,0 +1,32 @@
+mysql:
+  mysqlUser: mattermostUser
+  mysqlPassword: ${mysql_password}
+
+ingress:
+  enabled: true
+  hosts:
+  - ${chat_domain}
+  tls:
+    - hosts:
+      - ${chat_domain}
+      secretName: mattermost-tls-secret
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    certmanager.k8s.io/acme-challenge-type: dns01
+    certmanager.k8s.io/acme-dns01-provider: clouddns
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-buffering: "on"
+
+configJSON: {
+  "TeamSettings": {
+    "EnableOpenServer": false
+  },
+  "ServiceSettings": {
+    "EnableUserAccessTokens": true,
+    "EnableUserAccessToken7s": true,
+    "EnableOAuthServiceProvider": true
+  }
+}

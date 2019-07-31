@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head><title>Home Page</title></head>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+
+
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+
+
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <body>
+
+    <main class="wrapper">
+        <section class="container">
+            <h1 th:text="${name}">Sample Workshop</h1>
+            <p>Welcome to the <span th:text="${name}">Sample Workshop</span>, please enter the access code below to proceed.</p>
+            <div th:if="${error}">
+            <blockquote>
+            <p th:text="${error}">Error</p>
+            </blockquote>
+            </div>
+            <div>
+                <form method="POST" th:action="@{''}">
+                    <fieldset>
+                        <input type="text" placeholder="Access Code" id="accessCode" name="accessCode">
+                        <input class="button-primary" type="submit" value="Submit">
+                    </fieldset>
+                </form>
+            </div>
+        </section>
+    </main>
+    </body>
+</html>

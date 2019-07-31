@@ -1,0 +1,9 @@
+rbac:
+  create: true
+controller:
+  service:
+    type: LoadBalancer
+    loadBalancerIP: ${lb_ip}
+    externalTrafficPolicy: Local
+  publishService:
+    enabled: true

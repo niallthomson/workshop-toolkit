@@ -1,0 +1,21 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head><title>Home Page</title></head>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+
+
+    <link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+
+
+    <link rel="stylesheet" href="//cdn.rawgit.com/milligram/milligram/master/dist/milligram.min.css">
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <body>
+
+    <main class="wrapper">
+        <section class="container">
+            <h2 th:text="${publicUrl}" style="text-align: center">URL</h2>
+            <h3 th:text="${accessCode}" class="column" style="margin-top: 30px;font-weight: bold; text-align: center"></h3>
+        </section>
+    </main>
+    </body>
+</html>

@@ -1,0 +1,13 @@
+.wrapper .container {
+    max-width: 60rem;
+}
+
+.container {
+    margin-top: 150px;
+}
+
+blockquote {
+    border-left-color: #bd1616;
+    color: #bd1616;
+    font-weight: bold;
+}
