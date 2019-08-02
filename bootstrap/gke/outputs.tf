@@ -17,3 +17,7 @@ output "mattermost_url" {
 output "mattermost_admin_password" {
     value = "${module.core.mattermost_admin_password}"
 }
+
+output "workspace_urls" {
+  value = "${module.core.workspace_urls}"
+}

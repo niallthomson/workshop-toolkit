@@ -47,3 +47,7 @@ variable "workshop_creation_timeout" {
 variable "workspaces_secrets" {
   default = { }
 }
+
+variable "num_workspaces" {
+  default = 0
+}

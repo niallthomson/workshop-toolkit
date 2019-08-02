@@ -1,12 +1,3 @@
-provider "google" {
-  project = "${var.project_id}"
-  region  = "${var.region}"
-}
-
-provider "acme" {
-  server_url = "https://acme-v02.api.letsencrypt.org/directory"
-}
-
 data "google_container_engine_versions" "default" {
   zone = "${var.zone}"
 }
@@ -21,7 +12,7 @@ resource "google_container_cluster" "default" {
 
   node_config {
     image_type = "UBUNTU"
-    machine_type = "${var.cluster_instance_type}"
+    machine_type = "n1-standard-2"
 
     metadata {
       "disable-legacy-endpoints" = "true"

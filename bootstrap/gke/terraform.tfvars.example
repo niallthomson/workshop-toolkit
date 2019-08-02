@@ -19,3 +19,5 @@ workshop_repo = "https://github.com/nthomson-pivotal/workshop-toolkit-sample.git
 workspaces_secrets = {
   
 }
+
+num_workspaces = 0

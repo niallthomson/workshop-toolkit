@@ -26,8 +26,10 @@ module "core" {
   cluster_issuers_yml = "${data.template_file.cluster_issuers.rendered}"
 
   blocker_id = "${null_resource.blocker.id}"
+
+  num_workspaces = "${var.num_workspaces}"
 }
 
 resource "null_resource" "blocker" {
-    depends_on = ["google_container_cluster.default"]
+  depends_on = ["google_container_cluster.default", "google_container_node_pool.workspace_nodes"]
 }
