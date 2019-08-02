@@ -21,5 +21,5 @@ spec:
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-prod
-  secretName: coder-tls-secret
+  secretName: wildcard-tls-secret
 EOF

@@ -59,3 +59,7 @@ variable "cluster_issuers_yml" {
 variable "blocker_id" {
   
 }
+
+variable "num_workspaces" {
+  default = 0
+}

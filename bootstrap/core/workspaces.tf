@@ -1,25 +1,14 @@
 resource "kubernetes_namespace" "workspaces" {
+  depends_on  = ["helm_release.nginx_ingress"]
+
   metadata {
-    name = "coder"
+    name = "workspaces"
   }
 }
 
-resource "null_resource" "workspaces" {
-  depends_on = ["helm_release.certmanager"]  
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/workspaces-resources.sh ${kubernetes_namespace.workspaces.metadata.0.name} ${var.domain_suffix}"
-  }
-}
-
-resource "random_string" "workshop_access_code" {
-  length = 6
-  special = false
-}
-
-resource "kubernetes_secret" "workspaces_secrets" {
+resource "kubernetes_secret" "workspaces_secret" {
   metadata {
-    name = "coder-secrets"
+    name = "workspaces-secrets"
     namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
   }
 
@@ -28,143 +17,55 @@ resource "kubernetes_secret" "workspaces_secrets" {
   type = "Opaque"
 }
 
-resource "kubernetes_service_account" "bot" {
-  metadata {
-    name = "bot"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
+resource "null_resource" "workspaces_wilcard_cert" {
+  depends_on = ["helm_release.certmanager"]  
+
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/wildcard-cert.sh ${kubernetes_namespace.workspaces.metadata.0.name} ${var.domain_suffix}"
   }
 }
 
-resource "kubernetes_cluster_role_binding" "bot" {
-  metadata {
-    name = "${kubernetes_service_account.bot.metadata.0.name}"
-  }
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind = "ClusterRole"
-    name = "cluster-admin"
-  }
-  subject {
-    kind = "ServiceAccount"
-    name = "${kubernetes_service_account.bot.metadata.0.name}"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
+resource "random_string" "workspace_id" {
+  length = 4
+  special = false
+  upper = false
 
-    api_group = ""
-  }
+  count = "${var.num_workspaces}"
 }
 
-resource "kubernetes_pod" "mattermost_bot" {
-  metadata {
-    name = "mattermost-bot"
+data "template_file" "workspace_config" {
+  template = "${file("${path.module}/templates/workspace.yml")}"
+
+  vars = {
+    id = "space${count.index}"
     namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
-    labels = {
-      app = "mattermost-bot"
-    }
+    fqdn = "space${count.index}.${var.domain_suffix}"
+    repo = "${var.workshop_repo}"
   }
 
-  spec {
-    container {
-      image = "nthomsonpivotal/workshop-mm-bot:${var.mattermost_bot_image}"
-      image_pull_policy = "Always"
-      name  = "bot"
-
-      readiness_probe {
-        http_get {
-          path = "/health"
-          port = 8080
-        }
-
-        initial_delay_seconds = 5
-        period_seconds        = 5
-      }
-
-      env_from = {
-        secret_ref {
-          name = "${kubernetes_secret.bot_configuration.metadata.0.name}"
-        }
-      }
-    } 
-
-    automount_service_account_token = true
-    service_account_name = "${kubernetes_service_account.bot.metadata.0.name}"   
-  }
+  count = "${var.num_workspaces}"
 }
 
-resource "kubernetes_service" "mattermost_bot" {
-  metadata {
-    name = "mattermost-bot"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
-  }
-  spec {
-    selector = {
-      app = "${kubernetes_pod.mattermost_bot.metadata.0.name}"
-    }
-    port {
-      port        = 8080
-      target_port = 8080
-      protocol    = "TCP"
-      name        = "http"
-    }
+resource "null_resource" "workspaces" {
+  depends_on = ["kubernetes_secret.workspaces_secret"]
 
-    type = "ClusterIP"
-  }
-}
+  provisioner "local-exec" {
+    command = "${path.module}/scripts/apply-yml.sh"
 
-resource "kubernetes_ingress" "mattermost_bot" {
-  metadata {
-    name = "mattermost-bot"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
-    annotations = {
-      "kubernetes.io/ingress.class" = "nginx"
-      "certmanager.k8s.io/acme-challenge-type" = "dns01"
-      "certmanager.k8s.io/acme-dns01-provider" = "clouddns"
-      "certmanager.k8s.io/cluster-issuer" = "letsencrypt-prod"
+    environment = {
+      YML = "${element(data.template_file.workspace_config.*.rendered, count.index)}"
     }
   }
 
-  spec {
-    rule {
-      host = "${var.domain_suffix}"
-      http {
-        path {
-          backend {
-            service_name = "${kubernetes_service.mattermost_bot.metadata.0.name}"
-            service_port = 8080
-          }
-        }
-      }
-    }
+  provisioner "local-exec" {
+    when    = "destroy"
+    command = "${path.module}/scripts/destroy-workspace.sh"
 
-    tls {
-      hosts = ["${var.domain_suffix}"]
-      secret_name = "mattermost-bot-tls-secret"
+    environment = {
+      NAMESPACE = "${kubernetes_namespace.workspaces.metadata.0.name}"
+      ID = "space${count.index}"
     }
   }
-}
 
-resource "kubernetes_secret" "bot_configuration" {
-  metadata {
-    name = "bot-configuration"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
-  }
-
-  data = {
-    MATTERMOST_HOST = "${local.chat_domain}"
-    MATTERMOST_SECURE = "${var.internal_comms ? "false" : "true"}"
-    MATTERMOST_ADMIN_USER = "admin"
-    MATTERMOST_ADMIN_PASSWORD = "${random_string.mattermost_admin_password.result}"
-    MATTERMOST_OPERATOR_USER = "admin"
-    MATTERMOST_BOT_CALLBACK_URL = "https://${var.oauth_domain}/oauth/callback"
-    WORKSHOP_NAME = "${var.workshop_name}"
-    WORKSHOP_DNSSUFFIX = "${var.domain_suffix}"
-    WORKSHOP_GITREPO = "${var.workshop_repo}"
-    WORKSHOP_ACCESSCODE = "${random_string.workshop_access_code.result}"
-    WORKSHOP_CREATION_TIMEOUT = "${var.workshop_creation_timeout}"
-  }
-
-  type = "Opaque"
-
-  depends_on = [
-    "helm_release.mattermost", 
-  ]
+  count = "${var.num_workspaces}"
 }

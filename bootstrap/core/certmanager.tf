@@ -7,7 +7,7 @@ resource "null_resource" "certmanager_prereqs" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/cluster-issuer.sh"
+    command = "${path.module}/scripts/apply-yml.sh"
 
     environment = {
       YML = "${var.cluster_issuers_yml}"
