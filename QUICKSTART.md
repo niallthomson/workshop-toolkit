@@ -8,11 +8,11 @@ These are temporary quick start instructions for running on GCP.
 
 First, clone the project locally:
 
-`git clone https://github.com/nthomson-pivotal/workshop-toolkit-prototype.git`
+`git clone https://github.com/nthomson-pivotal/workshop-toolkit-prototype.git ~/workshop-toolkit-prototype`
 
 ### Login to gcloud
 
-Ensure that you have the `gcloud` CLI installed and are logged in to your account.
+The Terraform configuration included in this project does not accept authentication information as parameters, but instead inherits your current login session from `gcloud` for the sake of simplicity. As such, you must ensure that you have the `gcloud` CLI installed and are logged in to your account.
 
 ### Create GCP Cloud DNS Zone
 
@@ -26,17 +26,22 @@ I am going to use the following sub-domain for my workshop resources:
 
 `workshop.paasify.org`
 
-So I have setup a GCP Cloud DNS zone called `workshop.paasify.org`, for which the nameservers are properly integrated in to my TLD DNS resolution.
+If you're setting up a new zone, here is a sample `gcloud` command you can use:
 
-Record the name of the Cloud DNS zone for a future step.
+```
+gcloud dns managed-zones create workshop-zone --dns-name workshop.paasify.org. \
+      --description "My workshop zone"
+```
+
+Whatever name you use (in my case `workshop-zone`) will be important for use later.
 
 ## Configuration
 
 Create a directory to hold your configuration and Terraform state:
 
 ```
-mkdir workshop
-cd workshop
+mkdir ~/workshop-state
+cd ~/workshop-state
 ```
 
 Copy the example `tfvars` file to your directory:
@@ -45,12 +50,39 @@ Copy the example `tfvars` file to your directory:
 cp ~/workshop-toolkit-prototype/bootstrap/gke/terraform.tfvars.example terraform.tfvars
 ```
 
-Edit the `tfvars` file and enter information relevant to your environment.
+Edit the `terraform.tfvars` file and enter information relevant to your environment.
+
+```
+# Email for LetsEncrypt certificates
+email = "nthomson@pivotal.io"
+
+# GKE name, region, and zone
+cluster_name = "workshop-test" # Call it anything
+region = "us-west1"            # Make sure region and zone are consistent
+zone = "us-west1-a"            #
+
+# DNS zone names
+root_zone_name = "workshop-zone" # This is the name of the DNS zone mentioned earlier in this doc
+subdomain = "test"               # This subdomain will be created under your main zone, so for example test.workshop.paasify.org
+
+project_id = "fe-myname"         # The GCP project you are logged in to
+
+# Install sample workshop content
+workshop_name = "Spring Workshop"
+workshop_repo = "https://github.com/nthomson-pivotal/workshop-toolkit-sample.git"
+
+workspaces_secrets = {
+  # Uncomment the line below to checkout your own sample Java project instead of spring-music  
+  #WORKSHOP_REPO = "https://github.com/spring-projects/spring-petclinic.git"
+}
+
+num_workspaces = 2    # Enter how many workspaces you want to pre-provision
+```
 
 Now initialize your Terraform:
 
 ```
-terraform init
+terraform init ~/workshop-toolkit-prototype/bootstrap/gke
 ```
 
 ## Run
@@ -58,7 +90,7 @@ terraform init
 Apply the Terraform using `apply`:
 
 ```
-terraform apply
+terraform apply ~/workshop-toolkit-prototype/bootstrap/gke
 ```
 
 This will produce output similar to the following:
@@ -76,3 +108,13 @@ workspace_urls = [
 ```
 
 To access a workspace, copy one of the workspace URLs from the output and access it from a browser.
+
+## Clean Up
+
+You can tear down all the infrastructure created by executing the following command:
+
+```
+cd ~/workshop-state
+
+terraform destroy ~/workshop-toolkit-prototype/bootstrap/gke
+```
