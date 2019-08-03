@@ -7,7 +7,7 @@ resource "google_container_node_pool" "workspace_nodes" {
   
   autoscaling {
     min_node_count = 1
-    max_node_count = 5
+    max_node_count = 10
   }
 
   node_config {
