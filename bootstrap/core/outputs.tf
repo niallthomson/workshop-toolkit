@@ -19,5 +19,5 @@ output "mattermost_admin_password" {
 }
 
 output "workspace_urls" {
-  value = "${formatlist("https://space%s.%s/", random_string.workspace_id.*.result, var.domain_suffix)}"
+  value = "${data.template_file.workspace_urls.*.rendered}"
 }

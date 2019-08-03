@@ -33,6 +33,12 @@ resource "random_string" "workspace_id" {
   count = "${var.num_workspaces}"
 }
 
+data "template_file" "workspace_urls" {
+  template = "https://space${count.index}.${var.domain_suffix}"
+
+  count = "${var.num_workspaces}"
+}
+
 data "template_file" "workspace_config" {
   template = "${file("${path.module}/templates/workspace.yml")}"
 
