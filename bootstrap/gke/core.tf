@@ -24,6 +24,7 @@ module "core" {
   domain_suffix = "${replace(google_dns_managed_zone.workshop_zone.dns_name, "/[.]$/", "")}"
 
   cluster_issuers_yml = "${data.template_file.cluster_issuers.rendered}"
+  acme_dns_provider   = "clouddns"
 
   blocker_id = "${null_resource.blocker.id}"
 

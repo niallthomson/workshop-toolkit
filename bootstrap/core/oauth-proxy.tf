@@ -84,7 +84,7 @@ resource "kubernetes_ingress" "oauth_proxy" {
     annotations = {
       "kubernetes.io/ingress.class" = "nginx"
       "certmanager.k8s.io/acme-challenge-type" = "dns01"
-      "certmanager.k8s.io/acme-dns01-provider" = "clouddns"
+      "certmanager.k8s.io/acme-dns01-provider" = "${var.acme_dns_provider}"
       "certmanager.k8s.io/cluster-issuer" = "letsencrypt-prod"
     }
   }

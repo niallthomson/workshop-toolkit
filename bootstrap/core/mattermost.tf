@@ -19,6 +19,7 @@ data "template_file" "mattermost_config" {
   vars = {
     chat_domain = "${var.chat_domain}"
     mysql_password = "${random_string.mattermost_mysql_password.result}"
+    acme_dns_provider = "${var.acme_dns_provider}"
   }
 }
 

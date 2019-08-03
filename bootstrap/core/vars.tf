@@ -56,6 +56,10 @@ variable "cluster_issuers_yml" {
   default = ""
 }
 
+variable "acme_dns_provider" {
+  default = ""
+}
+
 variable "blocker_id" {
   
 }
