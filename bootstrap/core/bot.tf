@@ -34,6 +34,7 @@ resource "kubernetes_cluster_role_binding" "bot" {
   metadata {
     name = "${kubernetes_service_account.bot.metadata.0.name}"
   }
+  
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind = "ClusterRole"
@@ -155,7 +156,7 @@ resource "kubernetes_secret" "bot_configuration" {
     WORKSHOP_GITREPO = "${var.workshop_repo}"
     WORKSHOP_ACCESSCODE = "${random_string.workshop_access_code.result}"
     WORKSHOP_CREATION_TIMEOUT = "${var.workshop_creation_timeout}"
-    KUBERNETES_WORKSPACE = "${kubernetes_namespace.bot_workspace.metadata.0.name}"
+    KUBERNETES_NAMESPACE = "${kubernetes_namespace.bot_workspace.metadata.0.name}"
   }
 
   type = "Opaque"

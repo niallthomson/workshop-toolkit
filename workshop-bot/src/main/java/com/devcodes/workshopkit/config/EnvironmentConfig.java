@@ -17,7 +17,7 @@ public class EnvironmentConfig {
 	@Value("${workshop.creation.timeout:240}")
 	private int timeout;
 
-	@Value("${kubernetes.namespace")
+	@Value("${kubernetes.namespace}")
 	private String kubernetesNamespace;
 
 	@Bean

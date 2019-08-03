@@ -91,6 +91,10 @@ spec:
       - name: coder-storage
         persistentVolumeClaim:
           claimName: coder-volume
+      tolerations:
+      - key: "workspace"
+        operator: Equal
+        value: "preallocated"
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -109,7 +113,7 @@ spec:
   tls:
   - hosts:
     - <fqdn>
-    secretName: coder-tls-secret
+    secretName: wildcard-tls-secret
   rules:
     - host: <fqdn>
       http:
@@ -129,7 +133,7 @@ spec:
   tls:
   - hosts:
     - app-<fqdn>
-    secretName: coder-tls-secret
+    secretName: wildcard-tls-secret
   rules:
     - host: app-<fqdn>
       http:

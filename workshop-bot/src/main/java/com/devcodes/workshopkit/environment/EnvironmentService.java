@@ -83,16 +83,20 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 		
 		log.debug("Calling k8s");
 		
-		Secret tlsSecret = client.secrets().inNamespace(this.kubernetesNamespace).withName("coder-tls-secret").get();
+		Secret tlsSecret = client.secrets().inNamespace(this.kubernetesNamespace).withName("wildcard-tls-secret").get();
 		
 		if(tlsSecret == null) {
+			log.error("Failed to find secret 'wildcard-tls-secret' in namespace {}", this.kubernetesNamespace);
+
 			throw new RuntimeException("Failed to find TLS secret");
 		}
 		
 		Secret coderSecrets = client.secrets().inNamespace(this.kubernetesNamespace).withName("coder-secrets").get();
 		
 		if(coderSecrets == null) {
-			throw new RuntimeException("Failed to find TLS secret");
+			log.error("Failed to find secret 'coder-secrets' in namespace {}", this.kubernetesNamespace);
+
+			throw new RuntimeException("Failed to find config secret");
 		}
 		
 		Namespace namespace = client.namespaces().createNew()
