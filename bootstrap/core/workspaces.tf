@@ -21,16 +21,8 @@ resource "null_resource" "workspaces_wilcard_cert" {
   depends_on = ["helm_release.certmanager"]  
 
   provisioner "local-exec" {
-    command = "${path.module}/scripts/wildcard-cert.sh ${kubernetes_namespace.workspaces.metadata.0.name} ${var.domain_suffix}"
+    command = "${path.module}/scripts/wildcard-cert.sh ${kubernetes_namespace.workspaces.metadata.0.name} ${var.domain_suffix} ${var.acme_dns_provider}"
   }
-}
-
-resource "random_string" "workspace_id" {
-  length = 4
-  special = false
-  upper = false
-
-  count = "${var.num_workspaces}"
 }
 
 data "template_file" "workspace_urls" {

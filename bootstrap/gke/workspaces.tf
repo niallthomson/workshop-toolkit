@@ -1,5 +1,4 @@
 resource "google_container_node_pool" "workspace_nodes" {
-
   provider = "google-beta"
 
   name       = "workspace-node-pool"
@@ -7,8 +6,8 @@ resource "google_container_node_pool" "workspace_nodes" {
   cluster    = "${google_container_cluster.default.name}"
   
   autoscaling {
-      min_node_count = 1
-      max_node_count = 5
+    min_node_count = 1
+    max_node_count = 5
   }
 
   node_config {

@@ -2,6 +2,7 @@
 
 NAMESPACE=$1
 DNS_SUFFIX=$2
+ACME_DNS_PROVIDER=$3
 
 cat <<EOF | kubectl apply -f -
 apiVersion: certmanager.k8s.io/v1alpha1
@@ -13,7 +14,7 @@ spec:
   acme:
     config:
     - dns01:
-        provider: clouddns
+        provider: ${ACME_DNS_PROVIDER}
       domains:
       - '*.${DNS_SUFFIX}'
   dnsNames:

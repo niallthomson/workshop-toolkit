@@ -4,14 +4,6 @@ resource "kubernetes_namespace" "bot_workspace" {
   }
 }
 
-resource "null_resource" "bot_wilcard_cert" {
-  depends_on = ["helm_release.certmanager"]  
-
-  provisioner "local-exec" {
-    command = "${path.module}/scripts/wildcard-cert.sh ${kubernetes_namespace.bot_workspace.metadata.0.name} ${var.domain_suffix}"
-  }
-}
-
 resource "kubernetes_secret" "bot_workspace_secrets" {
   metadata {
     name = "coder-secrets"
