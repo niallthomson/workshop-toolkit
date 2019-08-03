@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.fabric8.kubernetes.api.model.*;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,10 +23,6 @@ import com.devcodes.workshopkit.environment.EnvironmentDetails;
 import com.devcodes.workshopkit.environment.EnvironmentService;
 import com.devcodes.workshopkit.environment.watcher.IEnvironmentWatcherService;
 
-import io.fabric8.kubernetes.api.model.DoneableNamespace;
-import io.fabric8.kubernetes.api.model.Namespace;
-import io.fabric8.kubernetes.api.model.NamespaceBuilder;
-import io.fabric8.kubernetes.api.model.NamespaceList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
@@ -46,10 +43,16 @@ public class EnvironmentServiceTests {
 	
 	@Mock
 	NonNamespaceOperation< Namespace, NamespaceList, DoneableNamespace, Resource<Namespace, DoneableNamespace>> namespaceApi;
-	
+
 	@Mock
 	FilterWatchListDeletable<Namespace, NamespaceList, Boolean, Watch, Watcher<Namespace>> namespaceFilter;
-	
+
+	@Mock
+	Resource<Namespace, DoneableNamespace> namespaceResource;
+
+	@Mock
+	Resource<Namespace, DoneableNamespace> missingNamespaceResource;
+
 	@Mock
 	FilterWatchListDeletable<Namespace, NamespaceList, Boolean, Watch, Watcher<Namespace>> missingNamespaceFilter;
 	
@@ -76,13 +79,19 @@ public class EnvironmentServiceTests {
         		.addToLabels("user", "user")
         	.endMetadata()
         .build();
-        
+
         nsList = new NamespaceList();
         nsList.setItems(Lists.list(ns));
-        
+
+		when(missingNamespaceResource.get()).thenReturn(ns);
+		when(namespaceApi.withName(MISSING_NAMESPACE_ID)).thenReturn(missingNamespaceResource);
+
         when(missingNamespaceFilter.list()).thenReturn(new NamespaceList());
         when(namespaceApi.withLabel("id", MISSING_NAMESPACE_ID)).thenReturn(missingNamespaceFilter);
-        
+
+        when(namespaceResource.get()).thenReturn(ns);
+		when(namespaceApi.withName(NAMESPACE_ID)).thenReturn(namespaceResource);
+
         when(namespaceFilter.list()).thenReturn(nsList);
         when(namespaceApi.withLabel("id", NAMESPACE_ID)).thenReturn(namespaceFilter);
         
@@ -91,7 +100,7 @@ public class EnvironmentServiceTests {
 	
 	@Test
 	public void testRetrieveById() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		EnvironmentDetails details = service.retrieveById(NAMESPACE_ID);
 		
@@ -100,7 +109,7 @@ public class EnvironmentServiceTests {
 	
 	@Test
 	public void testRetrieveByIdMissing() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		EnvironmentDetails details = service.retrieveById(MISSING_NAMESPACE_ID);
 		
@@ -109,7 +118,7 @@ public class EnvironmentServiceTests {
 
 	@Test
 	public void testEnvironmentCreated() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		service.complete(NAMESPACE_ID);
 		
@@ -121,7 +130,7 @@ public class EnvironmentServiceTests {
 	
 	@Test
 	public void testMissingEnvironmentCreated() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		service.complete(MISSING_NAMESPACE_ID);
 		
@@ -130,7 +139,7 @@ public class EnvironmentServiceTests {
 	
 	@Test
 	public void testEnvironmentCreateFailed() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		service.failed(NAMESPACE_ID, "error");
 		
@@ -143,7 +152,7 @@ public class EnvironmentServiceTests {
 	
 	@Test
 	public void testMissingEnvironmentCreateFailed() {
-		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo);
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
 		
 		service.failed(MISSING_NAMESPACE_ID, "error");
 		

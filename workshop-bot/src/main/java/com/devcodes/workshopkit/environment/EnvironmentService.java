@@ -37,16 +37,17 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 	private String gitRepo;
 
-	private final STGroup stGroup;
-	
-	private final String CODER_NAMESPACE = "coder";
+	private String kubernetesNamespace;
 
-	public EnvironmentService(KubernetesClient client, ApplicationEventPublisher applicationEventPublisher, IEnvironmentWatcherService environmentWatcher, String dnsSuffix, String gitRepo) {
+	private final STGroup stGroup;
+
+	public EnvironmentService(KubernetesClient client, ApplicationEventPublisher applicationEventPublisher, IEnvironmentWatcherService environmentWatcher, String dnsSuffix, String gitRepo, String kubernetesNamespace) {
 		this.client = client;
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.environmentWatcher = environmentWatcher;
 		this.dnsSuffix = dnsSuffix;
 		this.gitRepo = gitRepo;
+		this.kubernetesNamespace = kubernetesNamespace;
 		
 		this.environmentWatcher.addListener(this);
 		
@@ -82,13 +83,13 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 		
 		log.debug("Calling k8s");
 		
-		Secret tlsSecret = client.secrets().inNamespace(CODER_NAMESPACE).withName("coder-tls-secret").get();
+		Secret tlsSecret = client.secrets().inNamespace(this.kubernetesNamespace).withName("coder-tls-secret").get();
 		
 		if(tlsSecret == null) {
 			throw new RuntimeException("Failed to find TLS secret");
 		}
 		
-		Secret coderSecrets = client.secrets().inNamespace(CODER_NAMESPACE).withName("coder-secrets").get();
+		Secret coderSecrets = client.secrets().inNamespace(this.kubernetesNamespace).withName("coder-secrets").get();
 		
 		if(coderSecrets == null) {
 			throw new RuntimeException("Failed to find TLS secret");

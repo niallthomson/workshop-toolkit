@@ -17,10 +17,13 @@ public class EnvironmentConfig {
 	@Value("${workshop.creation.timeout:240}")
 	private int timeout;
 
+	@Value("${kubernetes.namespace")
+	private String kubernetesNamespace;
+
 	@Bean
 	public EnvironmentService environmentService(ApplicationEventPublisher publisher,
 			IEnvironmentWatcherService watcher, WorkshopConfig workshopConfig) {
-		return new EnvironmentService(new DefaultKubernetesClient(), publisher, watcher, workshopConfig.getDnsSuffix(), workshopConfig.getGitRepo());
+		return new EnvironmentService(new DefaultKubernetesClient(), publisher, watcher, workshopConfig.getDnsSuffix(), workshopConfig.getGitRepo(), this.kubernetesNamespace);
 	}
 	
 	@Bean
