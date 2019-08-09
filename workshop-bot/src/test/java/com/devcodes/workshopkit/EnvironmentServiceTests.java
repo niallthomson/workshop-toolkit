@@ -30,6 +30,8 @@ import io.fabric8.kubernetes.client.dsl.FilterWatchListDeletable;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 
+import java.util.List;
+
 public class EnvironmentServiceTests {
 	
 	@Mock
@@ -83,7 +85,7 @@ public class EnvironmentServiceTests {
         nsList = new NamespaceList();
         nsList.setItems(Lists.list(ns));
 
-		when(missingNamespaceResource.get()).thenReturn(ns);
+		when(missingNamespaceResource.get()).thenReturn(null);
 		when(namespaceApi.withName(MISSING_NAMESPACE_ID)).thenReturn(missingNamespaceResource);
 
         when(missingNamespaceFilter.list()).thenReturn(new NamespaceList());
@@ -94,6 +96,8 @@ public class EnvironmentServiceTests {
 
         when(namespaceFilter.list()).thenReturn(nsList);
         when(namespaceApi.withLabel("id", NAMESPACE_ID)).thenReturn(namespaceFilter);
+
+		when(namespaceApi.withLabel("app", "coder")).thenReturn(namespaceFilter);
         
         when(kubernetesClient.namespaces()).thenReturn(namespaceApi);
 	}
@@ -114,6 +118,15 @@ public class EnvironmentServiceTests {
 		EnvironmentDetails details = service.retrieveById(MISSING_NAMESPACE_ID);
 		
 		assertNull(details);
+	}
+
+	@Test
+	public void testList() {
+		EnvironmentService service = new EnvironmentService(kubernetesClient, applicationEventPublisher, environmentWatcher, dnsSuffix, gitRepo, "workshop");
+
+		List<EnvironmentDetails> list = service.list();
+
+		assertEquals(1, list.size());
 	}
 
 	@Test

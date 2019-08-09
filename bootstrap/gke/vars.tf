@@ -51,3 +51,7 @@ variable "workspaces_secrets" {
 variable "num_workspaces" {
   default = 0
 }
+
+variable "workspace_container_image_override" {
+  default = ""
+}

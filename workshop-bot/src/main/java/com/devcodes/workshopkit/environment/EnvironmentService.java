@@ -14,7 +14,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupFile;
-import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 		
 		this.environmentWatcher.addListener(this);
 		
-		this.stGroup = new STGroupFile("yml/coder.stg");
+		this.stGroup = new STGroupFile("yml/workspaces.stg");
 	}
 	
 	public List<EnvironmentDetails> list() {
@@ -80,25 +79,7 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 		String id = UUID.randomUUID().toString();
 		String fqdn = fqdn(username);
-		
-		log.debug("Calling k8s");
-		
-		Secret tlsSecret = client.secrets().inNamespace("workspaces").withName("wildcard-tls-secret").get();
-		
-		if(tlsSecret == null) {
-			log.error("Failed to find secret 'wildcard-tls-secret' in namespace {}", this.kubernetesNamespace);
 
-			throw new RuntimeException("Failed to find TLS secret");
-		}
-		
-		Secret coderSecrets = client.secrets().inNamespace(this.kubernetesNamespace).withName("coder-secrets").get();
-		
-		if(coderSecrets == null) {
-			log.error("Failed to find secret 'coder-secrets' in namespace {}", this.kubernetesNamespace);
-
-			throw new RuntimeException("Failed to find config secret");
-		}
-		
 		Namespace namespace = client.namespaces().createNew()
                 .withNewMetadata()
                   .withName(id)
@@ -111,29 +92,14 @@ public class EnvironmentService implements IEnvironmentWatchListener {
                 .done();
 
 		try {
-			client.secrets().inNamespace(id).createNew()
-					.withNewMetadata()
-					.withName(tlsSecret.getMetadata().getName())
-					.withNamespace(id)
-					.endMetadata()
-					.withData(tlsSecret.getData())
-					.done();
-
-			client.secrets().inNamespace(id).createNew()
-					.withNewMetadata()
-					.withName(coderSecrets.getMetadata().getName())
-					.withNamespace(id)
-					.endMetadata()
-					.withData(coderSecrets.getData())
-					.done();
+			this.copySecret("workspaces", "wildcard-tls-secret", id);
+			this.copySecret(this.kubernetesNamespace, "coder-secrets", id);
 
 			String ymlTemplate = createTemplate(id, username, fqdn, gitRepo);
 
 			log.info(ymlTemplate);
 
 			client.load(new ByteArrayInputStream(ymlTemplate.getBytes())).inNamespace(id).createOrReplace();
-
-			log.debug("Done calling k8s");
 
 			waitForEnvironment(id, fqdn);
 
@@ -144,6 +110,24 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 			throw e;
 		}
+	}
+
+	private void copySecret(String sourceNamespace, String name, String targetNamespace) {
+		Secret secret = client.secrets().inNamespace(sourceNamespace).withName(name).get();
+
+		if(secret == null) {
+			log.error("Failed to find secret {} in namespace {}", name, sourceNamespace);
+
+			throw new RuntimeException("Failed to find secret "+name);
+		}
+
+		client.secrets().inNamespace(targetNamespace).createNew()
+				.withNewMetadata()
+				.withName(secret.getMetadata().getName())
+				.withNamespace(targetNamespace)
+				.endMetadata()
+				.withData(secret.getData())
+				.done();
 	}
 
 	public EnvironmentDetails retrieve(String username) {
@@ -163,13 +147,7 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 	}
 	
 	public EnvironmentDetails retrieveById(String id) {
-		List<Namespace> namespaces = client.namespaces().withLabel("id", id).list().getItems();
-		
-		if(namespaces.size() == 0) {
-			return null;
-		}
-		
-		Namespace namespace = namespaces.get(0);
+		Namespace namespace = client.namespaces().withName(id).get();
 
 		if (namespace != null) {
 			return details(namespace);
@@ -258,14 +236,6 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 		
 		return this.request(username);
 	}
-	
-	public Mono<Void> reactiveDelete(String username) {
-		return Mono.create(callback -> 
-		{
-		    try { this.delete(username);; callback.success(); }
-		    catch (Exception e) { callback.error(e); }
-		});
-	}
 
 	private String createTemplate(String id, String username, String fqdn, String gitRepo) {
 		// Pick the correct template
@@ -304,12 +274,12 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 	@Override
 	public void complete(String id) {
-		this.updateNamespaceStatus(id, "Active");
-
 		EnvironmentDetails details = retrieveById(id);
 		
 		if(details != null) {
 			applicationEventPublisher.publishEvent(new EnvironmentCreatedEvent(details.getUsername(), details, this));
+
+			this.updateNamespaceStatus(id, "Active");
 		}
 		
 		log.warn("Received completion event for non-existent environment {}", id);
@@ -317,14 +287,14 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 	@Override
 	public void failed(String id, String message) {
-		this.updateNamespaceStatus(id, "CreateFailed");
-
 		EnvironmentDetails details = retrieveById(id);
 
 		if(details != null) {
 			applicationEventPublisher.publishEvent(new EnvironmentCreateFailedEvent(details.getUsername(), details, message, this));
+
+			this.updateNamespaceStatus(id, "CreateFailed");
 		}
-		
+
 		log.warn("Received failure event for non-existent environment {}", id);
 	}
 
@@ -333,6 +303,8 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 		if(namespace == null) {
 			log.error("Failed to find namespace on creation complete for {}", id);
+
+			return;
 		}
 
 		// Update namespace status

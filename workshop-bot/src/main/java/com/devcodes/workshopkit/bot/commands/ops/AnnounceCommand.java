@@ -11,6 +11,8 @@ import com.devcodes.workshopkit.bot.commands.IOpsBotCommand;
 public class AnnounceCommand implements IOpsBotCommand {
 	
 	private ST messageTemplate;
+
+	public static final String CHANNEL = "town-square";
 	
 	private static final String DEFAULT_TEMPLATE = "@channel **Announcement** <message>";
 
@@ -24,7 +26,7 @@ public class AnnounceCommand implements IOpsBotCommand {
 
 	@Override
 	public void execute(IMattermostEvent event, MattermostBot bot, String[] args) {
-		bot.sendMessageByChannelName(this.messageTemplate.add("message", String.join(" ", args)).render(), "town-square");
+		bot.sendMessageByChannelName(this.messageTemplate.add("message", String.join(" ", args)).render(), CHANNEL);
 	}
 
 	@Override

@@ -48,7 +48,7 @@ spec:
         "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
     spec:
       containers:
-      - image: nthomsonpivotal/code-server-workspace
+      - image: ${image}
         imagePullPolicy: Always
         name: coder
         env:

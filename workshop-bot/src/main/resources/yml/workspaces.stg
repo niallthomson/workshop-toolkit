@@ -95,6 +95,8 @@ spec:
       - key: "workspace"
         operator: Equal
         value: "preallocated"
+      nodeSelector:
+          workspaces: true
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress

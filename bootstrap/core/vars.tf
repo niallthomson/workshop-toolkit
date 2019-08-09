@@ -14,6 +14,14 @@ variable "mattermost_bot_image" {
   default = "latest"
 }
 
+variable "workspace_container_image" {
+  default = "nthomsonpivotal/code-server-workspace:stable"
+}
+
+variable "workspace_container_image_override" {
+  default = ""
+}
+
 variable "workshop_name" {
 
 }

@@ -29,6 +29,7 @@ module "core" {
   blocker_id = "${null_resource.blocker.id}"
 
   num_workspaces = "${var.num_workspaces}"
+  workspace_container_image_override = "${var.workspace_container_image_override}"
 }
 
 resource "null_resource" "blocker" {

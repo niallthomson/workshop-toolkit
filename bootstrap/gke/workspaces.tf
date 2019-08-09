@@ -14,6 +14,10 @@ resource "google_container_node_pool" "workspace_nodes" {
     image_type = "UBUNTU"
     machine_type = "${var.cluster_instance_type}"
 
+    labels = {
+      workspaces = "true"
+    }
+
     metadata {
       "disable-legacy-endpoints" = "true"
     }
