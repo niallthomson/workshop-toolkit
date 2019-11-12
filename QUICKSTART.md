@@ -4,6 +4,11 @@ These are temporary quick start instructions for running on GCP.
 
 ## Prerequisites
 
+You must have the following installed on your local system:
+
+- `kubectl` (at least version 1.12)
+- 
+
 ### Clone Project
 
 First, clone the project locally:

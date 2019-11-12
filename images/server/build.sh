@@ -4,6 +4,8 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-docker build -t nthomsonpivotal/code-server-workspace $DIR
+timestamp=$(date +%s)
 
-docker push nthomsonpivotal/code-server-workspace
+docker build -t nthomsonpivotal/code-server-workspace:$timestamp $DIR
+
+docker push nthomsonpivotal/code-server-workspace:$timestamp

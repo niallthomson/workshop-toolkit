@@ -1,4 +1,4 @@
-FROM codercom/code-server
+FROM nthomsonpivotal/code-server-workspace:1573591084
 
 COPY --from=lachlanevenson/k8s-kubectl:v1.15.0 /usr/local/bin/kubectl /usr/local/bin/kubectl
 
