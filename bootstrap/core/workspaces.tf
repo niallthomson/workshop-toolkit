@@ -35,11 +35,12 @@ data "template_file" "workspace_config" {
   template = "${file("${path.module}/templates/workspace.yml")}"
 
   vars = {
-    id = "space${count.index}"
-    namespace = "${kubernetes_namespace.workspaces.metadata.0.name}"
-    fqdn = "space${count.index}.${var.domain_suffix}"
-    repo = "${var.workshop_repo}"
-    image = "${var.workspace_container_image_override == "" ? var.workspace_container_image : var.workspace_container_image_override}"
+    id               = "space${count.index}"
+    namespace        = "${kubernetes_namespace.workspaces.metadata.0.name}"
+    fqdn             = "space${count.index}.${var.domain_suffix}"
+    repo             = "${var.workshop_repo}"
+    image            = "${var.workspace_container_image_override == "" ? var.workspace_container_image : var.workspace_container_image_override}"
+    lifecycle_image  = "${var.workspace_lifecycle_container_image}"
   }
 
   count = "${var.num_workspaces}"
@@ -63,6 +64,7 @@ resource "null_resource" "workspaces" {
     environment = {
       NAMESPACE = "${kubernetes_namespace.workspaces.metadata.0.name}"
       ID = "space${count.index}"
+      IMAGE = "${var.workspace_lifecycle_container_image}"
     }
   }
 

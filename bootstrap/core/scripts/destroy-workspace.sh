@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: destroy
-        image: nthomsonpivotal/code-init
+        image: ${IMAGE}
         imagePullPolicy: Always
         command:
          - "/src/init-scripts/destroy.sh"

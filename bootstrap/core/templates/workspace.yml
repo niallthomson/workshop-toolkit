@@ -75,7 +75,7 @@ spec:
           periodSeconds: 5
       initContainers:
       - name: load
-        image: nthomsonpivotal/code-server-lifecycle:1573592124
+        image: ${lifecycle_image}
         env:
         - name: WORKSHOP_GIT
           value: "${repo}"
@@ -101,6 +101,8 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/app-root: "/coder/?folder=/home/coder/project/repos"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   name: coder-ingress-${id}
   namespace: ${namespace}
 spec:
@@ -112,7 +114,8 @@ spec:
     - host: ${fqdn}
       http:
         paths:
-          - backend:
+          - path: /coder(/|$)(.*)
+            backend:
               serviceName: coder-svc-${id}
               servicePort: 8080
 ---

@@ -90,8 +90,9 @@ RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG en_US.utf8
 ENV DISABLE_TELEMETRY true
 
-ENV CODE_VERSION="2.1688-vsc1.39.2"
-RUN curl -sL https://github.com/cdr/code-server/releases/download/${CODE_VERSION}/code-server${CODE_VERSION}-linux-x86_64.tar.gz | tar --strip-components=1 -zx -C /usr/local/bin code-server${CODE_VERSION}-linux-x86_64/code-server
+ENV CODE_SERVER_VERSION="2.1698"
+ENV VSCODE_VERSION="vsc1.41.1"
+RUN curl -sL https://github.com/cdr/code-server/releases/download/${CODE_SERVER_VERSION}/code-server${CODE_SERVER_VERSION}-${VSCODE_VERSION}-linux-x86_64.tar.gz | tar --strip-components=1 -zx -C /usr/local/bin code-server${CODE_SERVER_VERSION}-${VSCODE_VERSION}-linux-x86_64/code-server
 
 # Setup User
 RUN groupadd -r coder \
@@ -171,4 +172,4 @@ EXPOSE 8080
 COPY scripts /src/workshop-scripts
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["bash", "-c", "/src/workshop-scripts/init.sh && exec code-server --auth none project"]
+CMD ["bash", "-c", "/src/workshop-scripts/init.sh && exec code-server --auth none --base-path /coder project"]

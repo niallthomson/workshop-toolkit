@@ -12,10 +12,10 @@ resource "helm_release" "nginx_ingress" {
       "helm_release.certmanager", 
   ]
 
-  name       = "nginx-ingress"
+  name       = "nginx-ingress2"
   namespace  = "nginx-ingress"
   chart      = "stable/nginx-ingress"
-  version    = "1.6.17"
+  version    = "1.29.5"
 
   values = ["${data.template_file.nginx_config.rendered}"]
 

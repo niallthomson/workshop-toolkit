@@ -2,8 +2,12 @@ rbac:
   create: true
 controller:
   service:
+    omitClusterIP: true
     type: LoadBalancer
     loadBalancerIP: ${lb_ip}
     externalTrafficPolicy: Local
   publishService:
     enabled: true
+defaultBackend:
+  service:
+    omitClusterIP: true
