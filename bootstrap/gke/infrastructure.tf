@@ -42,5 +42,5 @@ data "google_dns_managed_zone" "root_zone" {
 }
 
 resource "google_compute_address" "nginx_ingress" {
-  name = "workshop-nginx-ingress"
+  name = "workshop-${var.cluster_name}-nginx-ingress"
 }
