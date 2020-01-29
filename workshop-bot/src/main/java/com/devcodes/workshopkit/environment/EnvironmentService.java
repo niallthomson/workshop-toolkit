@@ -38,15 +38,21 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 
 	private String kubernetesNamespace;
 
+	private String serverImage;
+
+	private String lifecycleImage;
+
 	private final STGroup stGroup;
 
-	public EnvironmentService(KubernetesClient client, ApplicationEventPublisher applicationEventPublisher, IEnvironmentWatcherService environmentWatcher, String dnsSuffix, String gitRepo, String kubernetesNamespace) {
+	public EnvironmentService(KubernetesClient client, ApplicationEventPublisher applicationEventPublisher, IEnvironmentWatcherService environmentWatcher, String dnsSuffix, String gitRepo, String kubernetesNamespace, String serverImage, String lifecycleImage) {
 		this.client = client;
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.environmentWatcher = environmentWatcher;
 		this.dnsSuffix = dnsSuffix;
 		this.gitRepo = gitRepo;
 		this.kubernetesNamespace = kubernetesNamespace;
+		this.serverImage = serverImage;
+		this.lifecycleImage = lifecycleImage;
 		
 		this.environmentWatcher.addListener(this);
 		
@@ -247,6 +253,8 @@ public class EnvironmentService implements IEnvironmentWatchListener {
 		template.add("fqdn", fqdn);
 		template.add("repo", gitRepo);
 		template.add("oauth", "oauth."+this.dnsSuffix);
+		template.add("serverImage", this.serverImage);
+		template.add("lifecycleImage", this.lifecycleImage);
 
 		return template.render();
 	}

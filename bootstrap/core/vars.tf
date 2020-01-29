@@ -11,15 +11,19 @@ variable "mattermost_chart_version" {
 }
 
 variable "mattermost_bot_image" {
-  default = "latest"
+  default = "nthomsonpivotal/workshop-mm-bot:1579227924"
 }
 
 variable "workspace_container_image" {
-  default = "nthomsonpivotal/code-server-workspace:1573591084"
+  default = "nthomsonpivotal/code-server-workspace:1579223818"
 }
 
 variable "workspace_container_image_override" {
   default = ""
+}
+
+variable "workspace_lifecycle_container_image" {
+  default = "nthomsonpivotal/code-server-lifecycle:1573592124"
 }
 
 variable "workshop_name" {

@@ -24,7 +24,7 @@ public class EnvironmentCreatedListener implements ApplicationListener<Environme
 		
 		sb.append("Your environment is available at https://")
 		  .append(details.getUrl())
-		  .append("\n")
+		  .append("/?folder=/home/coder/project\n")
 		  .append("If prompted, allow the workspace access to your Mattermost profile. Only you have access to this environment.");
 		
 		bot.sendMessageByUsername(sb.toString(), event.getUsername());

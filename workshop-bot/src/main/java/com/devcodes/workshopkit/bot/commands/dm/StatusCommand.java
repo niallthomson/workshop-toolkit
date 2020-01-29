@@ -25,7 +25,7 @@ public class StatusCommand implements IDirectBotCommand {
 		if (existing != null) {
 			switch(existing.getStatus()) {
 				case "Active":
-					message = "You have an existing environment active at https://" + existing.getUrl();
+					message = "You have an existing environment active at https://" + existing.getUrl()+"/?folder=/home/coder/project";
 					break;
 				case "Creating":
 					message = "Your environment is still being created, I'll let you know when its done...";

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     add-apt-key \
     ca-certificates \
     dumb-init \
+    vim-tiny \
     && rm -rf /var/lib/apt/lists/*
 
 # CF CLI
@@ -133,6 +134,10 @@ RUN mkdir -p ${VSCODE_EXTENSIONS}/java-test \
 
 RUN mkdir -p ${VSCODE_EXTENSIONS}/maven \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscjava/vsextensions/vscode-maven/latest/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/maven extension
+
+# Setup Cloud Foundry Manifest Extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/browser-preview \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/pivotal/vsextensions/vscode-manifest-yaml/latest/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/browser-preview extension
 
 # Setup Kubernetes Extension
 RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \

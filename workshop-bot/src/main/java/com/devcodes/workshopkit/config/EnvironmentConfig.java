@@ -20,10 +20,23 @@ public class EnvironmentConfig {
 	@Value("${kubernetes.namespace}")
 	private String kubernetesNamespace;
 
+	@Value("${kubernetes.images.server:nthomsonpivotal/code-server-workspace}")
+	private String kubernetesServerImage;
+
+	@Value("${kubernetes.images.lifecycle:nthomsonpivotal/code-server-lifecycle}")
+	private String kubernetesLifecycleImage;
+
 	@Bean
 	public EnvironmentService environmentService(ApplicationEventPublisher publisher,
 			IEnvironmentWatcherService watcher, WorkshopConfig workshopConfig) {
-		return new EnvironmentService(new DefaultKubernetesClient(), publisher, watcher, workshopConfig.getDnsSuffix(), workshopConfig.getGitRepo(), this.kubernetesNamespace);
+		return new EnvironmentService(new DefaultKubernetesClient(),
+				publisher,
+				watcher,
+				workshopConfig.getDnsSuffix(),
+				workshopConfig.getGitRepo(),
+				this.kubernetesNamespace,
+				this.kubernetesServerImage,
+				this.kubernetesLifecycleImage);
 	}
 	
 	@Bean

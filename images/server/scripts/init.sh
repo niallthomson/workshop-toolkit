@@ -35,6 +35,6 @@ fi
 
 # Execute module init file if present
 if [ -f "$INIT_FILE" ]; then
-  chmod +x $INIT_FILE
+  sudo chmod +x $INIT_FILE
   bash $INIT_FILE
 fi

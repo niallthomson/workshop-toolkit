@@ -1,4 +1,4 @@
-createTemplate(id, username, password, fqdn, repo, oauth) ::= <<
+createTemplate(id, username, password, fqdn, repo, oauth, serverImage, lifecycleImage) ::= <<
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,10 +6,10 @@ metadata:
  namespace: <id>
 spec:
  ports:
- - port: 8443
+ - port: 8080
    name: coder
    protocol: TCP
- - port: 8080
+ - port: 8000
    name: app
    protocol: TCP
  selector:
@@ -48,7 +48,7 @@ spec:
       cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
     spec:
       containers:
-      - image: nthomsonpivotal/code-server-workspace
+      - image: <serverImage>
         imagePullPolicy: Always
         name: coder
         env:
@@ -57,9 +57,9 @@ spec:
         - name: WORKSHOP_APP_ENDPOINT
           value: "app-<fqdn>"
         ports:
-        - containerPort: 8443
-          name: coder
         - containerPort: 8080
+          name: coder
+        - containerPort: 8000
           name: app
         volumeMounts:
         - name: coder-storage
@@ -69,13 +69,13 @@ spec:
             memory: "4Gi"
         readinessProbe:
           httpGet:
-            path: /ping
-            port: 8443
+            path: /
+            port: 8080
           initialDelaySeconds: 15
           periodSeconds: 5
       initContainers:
       - name: load
-        image: nthomsonpivotal/code-server-lifecycle
+        image: <lifecycleImage>
         env:
         - name: WORKSHOP_GIT
           value: "<repo>"
@@ -103,7 +103,6 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/auth-url: "https://<oauth>/validate?users=<username>"
     nginx.ingress.kubernetes.io/auth-signin: "https://<oauth>/login?rd=$scheme://$http_host$request_uri&token=$auth_resp_jwt&err=$auth_resp_err"
     nginx.ingress.kubernetes.io/configuration-snippet: |
@@ -122,7 +121,7 @@ spec:
         paths:
           - backend:
               serviceName: coder-svc
-              servicePort: 8443
+              servicePort: 8080
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -142,7 +141,7 @@ spec:
         paths:
           - backend:
               serviceName: coder-svc
-              servicePort: 8080
+              servicePort: 8000
 >>
 
 destroyTemplate(id, username) ::= <<

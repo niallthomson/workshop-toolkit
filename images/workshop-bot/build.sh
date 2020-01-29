@@ -4,12 +4,8 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-VERSION=$1
+timestamp=$(date +%s)
 
-if [ -z "$VERSION" ]; then
-  VERSION="latest"
-fi
+pack build nthomsonpivotal/workshop-mm-bot:$timestamp -p $DIR/../../workshop-bot
 
-pack build nthomsonpivotal/workshop-mm-bot:$VERSION -p $DIR/../../workshop-bot
-
-docker push nthomsonpivotal/workshop-mm-bot:$VERSION
+docker push nthomsonpivotal/workshop-mm-bot:$timestamp

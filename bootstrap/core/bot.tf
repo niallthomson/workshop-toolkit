@@ -52,7 +52,7 @@ resource "kubernetes_pod" "mattermost_bot" {
 
   spec {
     container {
-      image = "nthomsonpivotal/workshop-mm-bot:${var.mattermost_bot_image}"
+      image = "${var.mattermost_bot_image}"
       image_pull_policy = "Always"
       name  = "bot"
 
@@ -149,6 +149,8 @@ resource "kubernetes_secret" "bot_configuration" {
     WORKSHOP_ACCESSCODE = "${random_string.workshop_access_code.result}"
     WORKSHOP_CREATION_TIMEOUT = "${var.workshop_creation_timeout}"
     KUBERNETES_NAMESPACE = "${kubernetes_namespace.bot_workspace.metadata.0.name}"
+    KUBERNETES_IMAGES_SERVER = "${var.workspace_container_image}"
+    KUBERNETES_IMAGES_LIFECYCLE = "${var.workspace_lifecycle_container_image}"
   }
 
   type = "Opaque"
