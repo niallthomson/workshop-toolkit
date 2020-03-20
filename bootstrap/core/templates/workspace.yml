@@ -6,10 +6,10 @@ metadata:
  namespace: ${namespace}
 spec:
  ports:
- - port: 8080
+ - port: 8888
    name: coder
    protocol: TCP
- - port: 8000
+ - port: 8080
    name: app
    protocol: TCP
  selector:
@@ -57,9 +57,9 @@ spec:
         - name: WORKSHOP_APP_ENDPOINT
           value: "app-${fqdn}"
         ports:
-        - containerPort: 8080
+        - containerPort: 8888
           name: coder
-        - containerPort: 8000
+        - containerPort: 8080
           name: app
         volumeMounts:
         - name: coder-storage-${id}
@@ -70,7 +70,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /
-            port: 8080
+            port: 8888
           initialDelaySeconds: 15
           periodSeconds: 5
       initContainers:
@@ -117,7 +117,7 @@ spec:
           - path: /coder(/|$)(.*)
             backend:
               serviceName: coder-svc-${id}
-              servicePort: 8080
+              servicePort: 8888
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -137,4 +137,4 @@ spec:
         paths:
           - backend:
               serviceName: coder-svc-${id}
-              servicePort: 8000
+              servicePort: 8080

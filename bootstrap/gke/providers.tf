@@ -25,5 +25,5 @@ provider "kubernetes" {
   client_key             = "${base64decode(google_container_cluster.default.master_auth.0.client_key)}"
   cluster_ca_certificate = "${base64decode(google_container_cluster.default.master_auth.0.cluster_ca_certificate)}"
 
-  version = "~> 1.8.0"
+  version = "~> 1.10.0"
 }

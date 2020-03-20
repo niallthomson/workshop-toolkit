@@ -28,7 +28,8 @@ if [ -f "$WELCOME_FILE" ]; then
 
   cat << EOF > ~/.local/share/code-server/User/settings.json
 {
-  "workbench.startupEditor": "readme"
+  "workbench.startupEditor": "readme",
+  "terminal.integrated.shell.linux": "/bin/bash"
 }
 EOF
 fi

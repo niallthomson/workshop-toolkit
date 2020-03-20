@@ -15,7 +15,7 @@ variable "mattermost_bot_image" {
 }
 
 variable "workspace_container_image" {
-  default = "nthomsonpivotal/code-server-workspace:1580280622"
+  default = "nthomsonpivotal/code-server-workspace:1584668797"
 }
 
 variable "workspace_container_image_override" {
